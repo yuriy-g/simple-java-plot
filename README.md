@@ -1,4 +1,4 @@
-simple-java-plot
+Simple Java Plot
 ================
 
 Simple Java implementation of plot. No dependencies besides standard libraries. 1 source file.
@@ -16,6 +16,8 @@ Plot plot = Plot.plot(null).
 // saving sample_minimal.png
 plot.save("sample_minimal", "png");
 ```
+
+![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_minimal.png "Minimal sample") 
 
 Hello World
 ```Java
@@ -37,3 +39,6 @@ Plot plot = Plot.plot(Plot.plotOpts().
 plot.save("sample_hello", "png");
 ```
 
+![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_hello.png "Hello World") 
+
+[gh-pages](http://yuriy-g.github.io/simple-java-plot/)
