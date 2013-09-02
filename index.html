@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Simple Java Plot : Simple Java implementation of plot" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Simple Java Plot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/yuriy-g/simple-java-plot">View on GitHub</a>
+
+          <h1 id="project_title">Simple Java Plot</h1>
+          <h2 id="project_tagline">Simple Java implementation of plot</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/yuriy-g/simple-java-plot/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/yuriy-g/simple-java-plot/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="simple-java-plot" class="anchor" href="#simple-java-plot"><span class="octicon octicon-link"></span></a>simple-java-plot</h1>
+
+<p>Simple Java implementation of plot. No dependencies besides standard libraries. 1 source file.</p>
+
+<p>Minimal example:</p>
+
+<div class="highlight"><pre><span class="c1">// configuring everything by default</span>
+<span class="n">Plot</span> <span class="n">plot</span> <span class="o">=</span> <span class="n">Plot</span><span class="o">.</span><span class="na">plot</span><span class="o">(</span><span class="kc">null</span><span class="o">).</span>
+    <span class="c1">// setting data</span>
+    <span class="n">series</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="n">Plot</span><span class="o">.</span><span class="na">data</span><span class="o">().</span>
+        <span class="n">xy</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">).</span>
+        <span class="n">xy</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">),</span> <span class="kc">null</span><span class="o">);</span>
+
+<span class="c1">// saving sample_minimal.png</span>
+<span class="n">plot</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="s">"sample_minimal"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">);</span>
+</pre></div>
+
+<p>Hello World</p>
+
+<div class="highlight"><pre><span class="n">Plot</span> <span class="n">plot</span> <span class="o">=</span> <span class="n">Plot</span><span class="o">.</span><span class="na">plot</span><span class="o">(</span><span class="n">Plot</span><span class="o">.</span><span class="na">plotOpts</span><span class="o">().</span>
+        <span class="n">title</span><span class="o">(</span><span class="s">"Hello World"</span><span class="o">).</span>
+        <span class="n">legend</span><span class="o">(</span><span class="n">Plot</span><span class="o">.</span><span class="na">LegendFormat</span><span class="o">.</span><span class="na">BOTTOM</span><span class="o">)).</span>
+    <span class="n">xAxis</span><span class="o">(</span><span class="s">"x"</span><span class="o">,</span> <span class="n">Plot</span><span class="o">.</span><span class="na">axisOpts</span><span class="o">().</span>
+        <span class="n">range</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">)).</span>
+    <span class="n">yAxis</span><span class="o">(</span><span class="s">"y"</span><span class="o">,</span> <span class="n">Plot</span><span class="o">.</span><span class="na">axisOpts</span><span class="o">().</span>
+        <span class="n">range</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">5</span><span class="o">)).</span>
+    <span class="n">series</span><span class="o">(</span><span class="s">"Data"</span><span class="o">,</span> <span class="n">Plot</span><span class="o">.</span><span class="na">data</span><span class="o">().</span>
+        <span class="n">xy</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">).</span>
+        <span class="n">xy</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">),</span>
+        <span class="n">Plot</span><span class="o">.</span><span class="na">seriesOpts</span><span class="o">().</span>
+            <span class="n">marker</span><span class="o">(</span><span class="n">Plot</span><span class="o">.</span><span class="na">Marker</span><span class="o">.</span><span class="na">DIAMOND</span><span class="o">).</span>
+            <span class="n">markerColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">GREEN</span><span class="o">).</span>
+            <span class="n">color</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">BLACK</span><span class="o">));</span>
+
+<span class="n">plot</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="s">"sample_hello"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">);</span>
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Simple Java Plot maintained by <a href="https://github.com/yuriy-g">yuriy-g</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
