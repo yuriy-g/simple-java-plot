@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 
 import com.github.plot.Plot;
+import com.github.plot.Plot.Line;
 
 /*
  * To demonstrate:
@@ -112,22 +113,72 @@ public class PlotDemo {
 		plot.save("sample_legend_bottom", "png");
 		plot.opts().gridColor(Color.WHITE);
 		plot.save("sample_no_grid", "png");
-		
-		plot.opts().gridColor(Color.GRAY);
-		plot.
-			xAxis("t2", Plot.axisOpts().
-				range(DT[1], DT[8]).
-				format(Plot.AxisFormat.TIME_HMS)).
-			series("CPU 2", Plot.data().
-				xy(DT[2], 17).
-				xy(DT[3], 25).
-				xy(DT[4], 22).
-				xy(DT[5], 28),
+
+		plot = Plot.plot(Plot.plotOpts().
+				title("Just sample").
+				width(1000).
+				height(600).
+				legend(Plot.LegendFormat.TOP)).	
+			xAxis("x", Plot.axisOpts().
+				range(0, 10)).
+			yAxis("y", Plot.axisOpts().
+				range(0, 10)).
+			series("f1", Plot.data().
+				xy(0, 1).
+				xy(1, 4).
+				xy(2, 3).
+				xy(4, 5),
 				Plot.seriesOpts().
+					lineWidth(3).
+					marker(Plot.Marker.NONE).
+					color(Color.BLUE)).
+			series("f2", Plot.data().
+				xy(2, 7).
+				xy(3, 8).
+				xy(4, 6),
+				Plot.seriesOpts().
+					line(Line.NONE).
+					marker(Plot.Marker.BAR).
+					color(Color.BLUE)).		
+			series("f3", Plot.data().
+				xy(4, 1).
+				xy(5, 3).
+				xy(6, 2),
+				Plot.seriesOpts().
+					line(Line.DASHED).
+					lineDash(new float[] { 3.0f, 5.0f }).
+					marker(Plot.Marker.DIAMOND).
+					areaColor(new Color(0, 0, 0xff, 30))).
+			series("f4", Plot.data().
+				xy(7, 2).
+				xy(8, 4).
+				xy(9, 3),
+				Plot.seriesOpts().
+					line(Line.NONE).
+					marker(Plot.Marker.COLUMN)).
+			series("f5", Plot.data().
+				xy(4, 9).
+				xy(5, 8).
+				xy(6, 9),
+				Plot.seriesOpts().
+					line(Line.NONE).
+					color(Color.BLACK).
 					marker(Plot.Marker.CIRCLE).
-					color(Color.RED).
-					yAxis("%"));
-		plot.save("sample_changed_series", "png");
+					markerColor(Color.CYAN).
+					markerSize(12)).
+			series("f6", Plot.data().
+				xy(6, 5).
+				xy(7, 6).
+				xy(8, 8),
+				Plot.seriesOpts().
+					line(Line.NONE).
+					marker(Plot.Marker.SQUARE).
+					markerColor(Color.CYAN)
+
+
+);
+		plot.save("sample_line_marker", "png");
+
 	}
 
 	// TODO: legend multiple axis

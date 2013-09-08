@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
@@ -29,9 +30,9 @@ import javax.imageio.ImageIO;
  */
 public class Plot {
 
-	public enum Line { NONE, SOLID };
-	public enum Marker { NONE, CIRCLE, SQUARE, DIAMOND };
-	public enum AxisFormat { NUMBER, NUMBER_KGM, TIME_HM, TIME_HMS, DATE, DATETIME_HM, DATETIME_HMS }
+	public enum Line { NONE, SOLID, DASHED };
+	public enum Marker { NONE, CIRCLE, SQUARE, DIAMOND, COLUMN, BAR };
+	public enum AxisFormat { NUMBER, NUMBER_KGM, NUMBER_INT, TIME_HM, TIME_HMS, DATE, DATETIME_HM, DATETIME_HMS }
 	public enum LegendFormat { NONE, TOP, RIGHT, BOTTOM }
 	
 	private enum HorizAlign { LEFT, CENTER, RIGHT }
@@ -185,6 +186,15 @@ public class Plot {
 			series.data = data;
 			series.opts = opts;
 		}
+		return this;
+	}
+
+	public Plot series(String name, DataSeriesOptions opts) {
+		DataSeries series = dataSeriesMap.get(name);
+		if (opts != null)
+			opts.setPlot(this);
+		if (series != null)
+			series.opts = opts;
 		return this;
 	}
 
@@ -410,7 +420,13 @@ public class Plot {
 							axis.opts.range.setMin(range.min);
 					}
 				}
-			}				
+			}
+			Map<String, Axis> axes = isX ? xAxes : yAxes;
+			for (Iterator<Axis> it = axes.values().iterator(); it.hasNext(); ) {
+				Axis axis = it.next();
+				if (axis.opts.range == null)
+					it.remove();
+			}
 		}
 
 		private void drawAxes(Graphics2D g) {
@@ -547,8 +563,9 @@ public class Plot {
 		}
 		
 		private void drawLegendEntry(Graphics2D g, DataSeries series, int x, int y) {
+			series.fillArea(g, x, y, x + opts.legendSignSize, y, y + opts.legendSignSize / 2);
 			series.drawLine(g, x, y, x + opts.legendSignSize, y);
-			series.drawMarker(g, x + opts.legendSignSize / 2, y);
+			series.drawMarker(g, x + opts.legendSignSize / 2, y, x, y + opts.legendSignSize / 2);
 			g.setColor(opts.foregroundColor);
 			drawLabel(g, series.nameWithAxes, x + opts.legendSignSize + opts.labelPadding, y, HorizAlign.LEFT, VertAlign.CENTER);
 		}
@@ -642,9 +659,11 @@ public class Plot {
 		private Color seriesColor = Color.BLUE;
 		private Line line = Line.SOLID;
 		private int lineWidth = 2;
+		private float[] lineDash = new float[] { 3.0f, 3.0f };
 		private Marker marker = Marker.NONE;
 		private int markerSize = 10;
 		private Color markerColor = Color.WHITE;
+		private Color areaColor = null;
 		private String xAxisName;
 		private String yAxisName;
 		private Axis xAxis;
@@ -665,6 +684,11 @@ public class Plot {
 			return this;
 		}
 
+		public DataSeriesOptions lineDash(float[] dash) {
+			this.lineDash = dash;
+			return this;
+		}
+		
 		public DataSeriesOptions marker(Marker marker) {
 			this.marker = marker;
 			return this;
@@ -677,6 +701,11 @@ public class Plot {
 		
 		public DataSeriesOptions markerColor(Color color) {
 			this.markerColor = color;
+			return this;
+		}
+		
+		public DataSeriesOptions areaColor(Color color) {
+			this.areaColor = color;
 			return this;
 		}
 		
@@ -784,8 +813,8 @@ public class Plot {
 		}
 		
 		private Range xRange() {
-			Range range = null;
-			if (data != null) {
+			Range range = new Range(0, 0);
+			if (data != null && data.size() > 0) {
 				range = new Range(data.x(0), data.x(0));
 				for (int i = 1; i < data.size(); i++) {
 					if (data.x(i) > range.max)
@@ -798,8 +827,8 @@ public class Plot {
 		}
 		
 		private Range yRange() {
-			Range range = null;
-			if (data != null) {
+			Range range = new Range(0, 0);
+			if (data != null && data.size() > 0) {
 				range = new Range(data.y(0), data.y(0));
 				for (int i = 1; i < data.size(); i++) {
 					if (data.y(i) > range.max)
@@ -814,19 +843,23 @@ public class Plot {
 		private void draw(Graphics2D g) {
 			g.setClip(plotArea.plotClipRect);
 			if (data != null) {
-				g.setColor(opts.seriesColor);
 				double x1 = 0, y1 = 0;
-				
-				Stroke lineStroke = new BasicStroke(opts.lineWidth);
-				if (opts.line == Line.SOLID)
-					g.setStroke(lineStroke);
 				int size = data.size();
 				if (opts.line != Line.NONE)
 					for (int j = 0; j < size; j++) {
 						double x2 = x2x(data.x(j), opts.xAxis.opts.range, plotArea.xPlotRange);
 						double y2 = y2y(data.y(j), opts.yAxis.opts.range, plotArea.yPlotRange);
-						if (j != 0)
-							g.drawLine(toInt(x1), toInt(y1), toInt(x2), toInt(y2));
+						int ix1 = toInt(x1), iy1 = toInt(y1), ix2 = toInt(x2), iy2 = toInt(y2);
+						int iy3 = plotArea.plotRect.y + plotArea.plotRect.height;
+						// special case for the case when only the first point present
+						if (size == 1) {
+							ix1 = ix2;
+							iy1 = iy2;
+						}
+						if (j != 0 || size == 1) {
+							fillArea(g, ix1, iy1, ix2, iy2, iy3);
+							drawLine(g, ix1, iy1, ix2, iy2);
+						}
 						x1 = x2;
 						y1 = y2;
 					}
@@ -837,8 +870,9 @@ public class Plot {
 				if (opts.marker != Marker.NONE)
 					for (int j = 0; j < size; j++) {
 						double x2 = x2x(data.x(j), opts.xAxis.opts.range, plotArea.xPlotRange);
-						double y2 = y2y(data.y(j), opts.yAxis.opts.range, plotArea.yPlotRange);						
-						drawMarker(g, halfMarkerSize, halfDiagMarkerSize, x2, y2);
+						double y2 = y2y(data.y(j), opts.yAxis.opts.range, plotArea.yPlotRange);
+						drawMarker(g, halfMarkerSize, halfDiagMarkerSize, x2, y2,
+								plotArea.plotRect.x, plotArea.plotRect.y + plotArea.plotRect.height);
 					}
 			}
 		}
@@ -846,23 +880,47 @@ public class Plot {
 		private int getDiagMarkerSize() {
 			return (int) Math.round(Math.sqrt(2 * opts.markerSize * opts.markerSize));
 		}
+		
+		private void fillArea(Graphics2D g, int ix1, int iy1, int ix2, int iy2, int iy3) {
+			if (opts.areaColor != null) {
+				g.setColor(opts.areaColor);
+				g.fill(new Polygon(
+						new int[] { ix1, ix2, ix2, ix1 },
+						new int[] { iy1, iy2, iy3, iy3 },
+						4));
+				g.setColor(opts.seriesColor);
+			}			
+		}
+		
+		private void drawLine(Graphics2D g, int ix1, int iy1, int ix2, int iy2) {
+			if (opts.line != Line.NONE) {
+				g.setColor(opts.seriesColor);
+				setStroke(g);
+				g.drawLine(ix1, iy1, ix2, iy2);
+			}
+		}
 
-		private void drawLine(Graphics2D g, double x1, double y1, double x2, double y2) {
-			g.setColor(opts.seriesColor);
-			Stroke lineStroke = new BasicStroke(opts.lineWidth);
-			if (opts.line == Line.SOLID)
-				g.setStroke(lineStroke);
-			g.drawLine(toInt(x1), toInt(y1), toInt(x2), toInt(y2));			
+		private void setStroke(Graphics2D g) {
+			switch (opts.line) {
+			case SOLID: 
+				g.setStroke(new BasicStroke(opts.lineWidth)); 
+				break;
+			case DASHED: 
+				g.setStroke(new BasicStroke(opts.lineWidth, BasicStroke.CAP_ROUND,
+			        BasicStroke.JOIN_ROUND, 10.0f, opts.lineDash, 0.0f));
+				break;
+			default:
+			}
 		}
 			
-		private void drawMarker(Graphics2D g, double x2, double y2) {
+		private void drawMarker(Graphics2D g, int x2, int y2, int x3, int y3) {
 			int halfMarkerSize = opts.markerSize / 2;
 			int halfDiagMarkerSize =  getDiagMarkerSize() / 2;
 			g.setStroke(new BasicStroke(2));
-			drawMarker(g, halfMarkerSize, halfDiagMarkerSize, x2, y2);
+			drawMarker(g, halfMarkerSize, halfDiagMarkerSize, x2, y2, x3, y3);
 		}
 		
-		private void drawMarker(Graphics2D g, int halfMarkerSize, int halfDiagMarkerSize, double x2, double y2) {
+		private void drawMarker(Graphics2D g, int halfMarkerSize, int halfDiagMarkerSize, double x2, double y2, double x3, double y3) {
 			switch (opts.marker) {
 			case CIRCLE:
 				g.setColor(opts.markerColor);
@@ -884,8 +942,20 @@ public class Plot {
 				g.setColor(opts.seriesColor);
 				g.drawPolygon(xpts, ypts, 4);
 				break;
+			case COLUMN:
+				g.setColor(opts.markerColor);
+				g.fillRect(toInt(x2), toInt(y2), opts.markerSize, toInt(y3 - y2));
+				g.setColor(opts.seriesColor);
+				g.drawRect(toInt(x2), toInt(y2), opts.markerSize, toInt(y3 - y2));
+				break;
+			case BAR:
+				g.setColor(opts.markerColor);
+				g.fillRect(toInt(x3), toInt(y2), toInt(x2 - x3), opts.markerSize);
+				g.setColor(opts.seriesColor);
+				g.drawRect(toInt(x3), toInt(y2), toInt(x2 - x3), opts.markerSize);				
+				break;
 			default:
-			}
+			} 
 		}
 
 	}
@@ -916,7 +986,8 @@ public class Plot {
 		case DATE: return String.format("%tF", new java.util.Date((long) d));
 		case DATETIME_HM: return String.format("%tF %1$tR", new java.util.Date((long) d));
 		case DATETIME_HMS: return String.format("%tF %1$tT", new java.util.Date((long) d));
-		case NUMBER_KGM: return formatDoubleAsNumber(d, true); 
+		case NUMBER_KGM: return formatDoubleAsNumber(d, true);
+		case NUMBER_INT: return Integer.toString((int) d); 
 		default: return formatDoubleAsNumber(d, false);
 		}
 	}
@@ -943,12 +1014,12 @@ public class Plot {
 	}
 	
 	private static double x2x(double x, Range xr1, Range xr2) {
-		return xr2.min + (x - xr1.min) / xr1.diff * xr2.diff;
+		return xr1.diff == 0 ? xr2.min + xr2.diff / 2 : xr2.min + (x - xr1.min) / xr1.diff * xr2.diff;
 	}
 	
 	// y axis is reverse in Graphics
 	private static double y2y(double x, Range xr1, Range xr2) {
-		return xr2.max - (x - xr1.min) / xr1.diff * xr2.diff;
+		return xr1.diff == 0 ? xr2.min + xr2.diff / 2 : xr2.max - (x - xr1.min) / xr1.diff * xr2.diff;
 	}
 
 	private static int toInt(double d) {
