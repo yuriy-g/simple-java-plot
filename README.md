@@ -17,7 +17,7 @@ Plot plot = Plot.plot(null).
 plot.save("sample_minimal", "png");
 ```
 
-![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_minimal.png "Minimal sample") 
+![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_minimal.png "Minimal sample")
 
 Hello World
 ```Java
@@ -39,6 +39,36 @@ Plot plot = Plot.plot(Plot.plotOpts().
 plot.save("sample_hello", "png");
 ```
 
-![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_hello.png "Hello World") 
+![alt text](https://raw.github.com/yuriy-g/simple-java-plot/gh-pages/images/sample_hello.png "Hello World")
 
 [gh-pages](http://yuriy-g.github.io/simple-java-plot/)
+
+### Build or run the test
+
+- __Clean the previous build__
+
+  ```bash
+  ./mvnw clean
+  ```
+
+- __Build the project__
+
+  ```bash
+  ./mvnw package
+  ```
+
+  the `*.jar` file can be found in `target/` folder.
+
+- __Install into local Maven repository__
+
+  ```bash
+  ./mvnw install
+  ```
+
+- __Running sample__
+
+  ```bash
+  # running all samples main class
+  mvn exec:java -Dexec.classpathScope="test" -Dexec.mainClass="com.github.plot.AllSamples"
+  ```
+
