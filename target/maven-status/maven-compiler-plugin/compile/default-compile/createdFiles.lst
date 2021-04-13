@@ -1,0 +1,17 @@
+com\github\plot\Plot.class
+com\github\plot\Plot$Axis.class
+com\github\plot\Plot$HorizAlign.class
+com\github\plot\Plot$LegendFormat.class
+com\github\plot\Plot$1.class
+com\github\plot\Plot$Line.class
+com\github\plot\Plot$Data.class
+com\github\plot\Plot$AxisOptions.class
+com\github\plot\Plot$PlotOptions.class
+com\github\plot\Plot$DataSeries.class
+com\github\plot\Plot$PlotArea.class
+com\github\plot\Plot$Legend.class
+com\github\plot\Plot$VertAlign.class
+com\github\plot\Plot$Range.class
+com\github\plot\Plot$DataSeriesOptions.class
+com\github\plot\Plot$AxisFormat.class
+com\github\plot\Plot$Marker.class
